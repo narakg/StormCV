@@ -3,7 +3,6 @@ package nl.tno.stormcv.batcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import nl.tno.stormcv.bolt.BatchInputBolt.History;
 import nl.tno.stormcv.model.CVParticle;
 
@@ -30,11 +29,13 @@ public class SequenceNrBatcher implements IBatcher{
 
 	@Override
 	public List<List<CVParticle>> partition(History history, List<CVParticle> currentSet) {
-		List<List<CVParticle>> result = new ArrayList<List<CVParticle>>();
-		List<CVParticle> items = new ArrayList<CVParticle>();
+		List<List<CVParticle>> result = new ArrayList<>();
+		List<CVParticle> items = new ArrayList<>();
 		items.addAll(currentSet);
 		if(items.size() == size){
-			for(CVParticle st : items) history.removeFromHistory(st);
+			for(CVParticle st : items) {
+                            history.removeFromHistory(st);
+                        }
 			result.add(items);
 		}
 		return result;

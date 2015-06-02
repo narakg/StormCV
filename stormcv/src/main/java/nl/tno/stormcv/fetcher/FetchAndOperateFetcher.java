@@ -1,20 +1,18 @@
 package nl.tno.stormcv.fetcher;
 
+import backtype.storm.task.TopologyContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.GroupOfFrames;
 import nl.tno.stormcv.model.serializer.CVParticleSerializer;
 import nl.tno.stormcv.operation.IBatchOperation;
 import nl.tno.stormcv.operation.IOperation;
-import nl.tno.stormcv.operation.SequentialFrameOp;
 import nl.tno.stormcv.operation.ISingleInputOperation;
+import nl.tno.stormcv.operation.SequentialFrameOp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A meta {@link IFetcher} that enables the use of an Operation directly within the spout. Data fetched is directly executed by the 
@@ -60,15 +58,20 @@ public class FetchAndOperateFetcher implements IFetcher<CVParticle> {
 	@Override
 	public void prepare(Map stormConf, TopologyContext context)	throws Exception {
 		fetcher.prepare(stormConf, context);
-		if(sio) singleInOp.prepare(stormConf, context);
-		else batchOp.prepare(stormConf, context);
-		results = new ArrayList<CVParticle>();
+		if(sio) {
+                    singleInOp.prepare(stormConf, context);
+                } else {
+                    batchOp.prepare(stormConf, context);
+                }
+		results = new ArrayList<>();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public CVParticleSerializer<CVParticle> getSerializer() {
-		if(sio) return singleInOp.getSerializer();
+		if(sio) {
+                    return singleInOp.getSerializer();
+                }
 		return batchOp.getSerializer();
 	}
 
@@ -86,15 +89,20 @@ public class FetchAndOperateFetcher implements IFetcher<CVParticle> {
 	@SuppressWarnings("unchecked")
 	public CVParticle fetchData() {
 		// first empty the current list with particles before fetching new data
-		if(results.size() > 0) return results.remove(0);
+		if(results.size() > 0) {
+                    return results.remove(0);
+                }
 		
 		// fetch data from particle
 		CVParticle particle = fetcher.fetchData();
-		if(particle == null) return null;
+		if(particle == null) {
+                    return null;
+                }
 		try{
-			if(sio) results = singleInOp.execute(particle);
-			else if (!sio && particle instanceof GroupOfFrames){
-				List<CVParticle> particles = new ArrayList<CVParticle>();
+			if(sio) {
+                            results = singleInOp.execute(particle);
+                        } else if (!sio && particle instanceof GroupOfFrames){
+				List<CVParticle> particles = new ArrayList<>();
 				particles.addAll( ((GroupOfFrames)particle).getFrames() );
 				results = batchOp.execute(particles);
 			}else{
@@ -103,7 +111,9 @@ public class FetchAndOperateFetcher implements IFetcher<CVParticle> {
 		}catch(Exception e){
 			logger.error("Unable to process fetched data due to: "+e.getMessage(), e);
 		}
-		if(results.size() > 0) return results.remove(0);
+		if(results.size() > 0) {
+                    return results.remove(0);
+                }
 		return null;
 	}
 

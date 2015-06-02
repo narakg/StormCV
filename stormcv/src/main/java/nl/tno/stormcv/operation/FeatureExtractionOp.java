@@ -1,10 +1,17 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.Descriptor;
+import nl.tno.stormcv.model.Feature;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FeatureSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfKeyPoint;
@@ -14,10 +21,6 @@ import org.opencv.features2d.KeyPoint;
 import org.opencv.highgui.Highgui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import backtype.storm.task.TopologyContext;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
 
 /**
  * An operation used to detect and describe a wide variety of features using the OpenCV FeatureExtraction and 
@@ -87,11 +90,15 @@ public class FeatureExtractionOp extends OpenCVOp<CVParticle> implements ISingle
 
 	@Override
 	public List<CVParticle> execute(CVParticle particle) throws Exception {
-		List<CVParticle> result = new ArrayList<CVParticle>();
-		if(!(particle instanceof Frame)) return result;
+		List<CVParticle> result = new ArrayList<>();
+		if(!(particle instanceof Frame)) {
+                    return result;
+                }
 		
 		Frame frame = (Frame)particle;
-		if(frame.getImageType().equals(Frame.NO_IMAGE)) return result;
+		if(frame.getImageType().equals(Frame.NO_IMAGE)) {
+                    return result;
+                }
 		try{
 			MatOfByte mob = new MatOfByte(frame.getImageBytes());
 			Mat image = Highgui.imdecode(mob, Highgui.CV_LOAD_IMAGE_ANYCOLOR);
@@ -104,7 +111,7 @@ public class FeatureExtractionOp extends OpenCVOp<CVParticle> implements ISingle
 			Mat descriptors = new Mat();
 			DescriptorExtractor extractor = DescriptorExtractor.create(descriptorType);
 			extractor.compute(image, mokp, descriptors);
-			List<Descriptor> descrList = new ArrayList<Descriptor>();
+			List<Descriptor> descrList = new ArrayList<>();
 			float[] tmp = new float[1];
 			for(int r=0; r<descriptors.rows(); r++){
 				float[] values = new float[descriptors.cols()];

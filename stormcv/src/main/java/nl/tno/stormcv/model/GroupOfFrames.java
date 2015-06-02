@@ -1,8 +1,7 @@
 package nl.tno.stormcv.model;
 
-import java.util.List;
-
 import backtype.storm.tuple.Tuple;
+import java.util.List;
 
 /**
  * This {@link CVParticle} implementation represents a group (1 or more) of {@link Frame} objects and can be used

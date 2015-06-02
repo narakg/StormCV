@@ -1,5 +1,6 @@
 package nl.tno.stormcv.util.connector;
 
+import backtype.storm.utils.Utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,9 +9,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.datatype.DatatypeConfigurationException;
-
+import nl.tno.stormcv.StormCVConfig;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -18,10 +18,6 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.util.UriEncoder;
-
-import backtype.storm.utils.Utils;
-import nl.tno.stormcv.StormCVConfig;
-import nl.tno.stormcv.util.connector.FileConnector;
 
 /**
  * A {@link FileConnector} implementation used to access FTP sites. The FTP_USERNAME and FTP_PASSWORD fields must be
@@ -62,8 +58,12 @@ public class FtpConnector implements FileConnector {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void prepare(Map stormConf) throws DatatypeConfigurationException {
-		if(stormConf.containsKey(FTP_USERNAME)) username = (String)stormConf.get(FTP_USERNAME);
-		if(stormConf.containsKey(FTP_PASSWORD)) password = (String)stormConf.get(FTP_PASSWORD);
+		if(stormConf.containsKey(FTP_USERNAME)) {
+                    username = (String)stormConf.get(FTP_USERNAME);
+                }
+		if(stormConf.containsKey(FTP_PASSWORD)) {
+                    password = (String)stormConf.get(FTP_PASSWORD);
+                }
 	}
 
 	@Override
@@ -78,7 +78,9 @@ public class FtpConnector implements FileConnector {
 			this.location = new URI(UriEncoder.encode(loc));
 			checkAndConnect();
 			int code = client.cwd(location.getPath());
-			if(code == 250) return;
+			if(code == 250) {
+                            return;
+                        }
 			code = client.cwd(location.getPath().substring(0, location.getPath().lastIndexOf('/')));
 		}catch(Exception e){
 			logger.warn("Unable to move to "+location+" due to: "+e.getMessage());
@@ -90,12 +92,14 @@ public class FtpConnector implements FileConnector {
 	public void copyFile(File localFile, boolean delete) throws IOException {
 		checkAndConnect();
 		client.storeFile(location.getPath().substring(location.getPath().lastIndexOf('/')+1), new FileInputStream(localFile));
-		if(delete) localFile.delete();
+		if(delete) {
+                    localFile.delete();
+                }
 	}
 
 	@Override
 	public List<String> list() {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		try{
 			checkAndConnect();
 			if(!location.getPath().equals( client.printWorkingDirectory() ) ){
@@ -148,7 +152,9 @@ public class FtpConnector implements FileConnector {
 	}
 
 	private void checkAndConnect() throws IOException{
-		if(client == null) client = new FTPClient();
+		if(client == null) {
+                    client = new FTPClient();
+                }
 		if(!client.isConnected()){ 
 			if(location.getPort() == -1){
 				client.connect(location.getHost());
@@ -160,7 +166,9 @@ public class FtpConnector implements FileConnector {
 	            throw new IOException("Exception in connecting to FTP Server");
 	        }
 			
-			if(username != null && password != null) client.login(username, password);
+			if(username != null && password != null) {
+                            client.login(username, password);
+                        }
 			client.setFileType(FTP.BINARY_FILE_TYPE);		
 		}
 	}

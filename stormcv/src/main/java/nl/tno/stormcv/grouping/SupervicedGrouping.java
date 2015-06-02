@@ -1,12 +1,11 @@
 package nl.tno.stormcv.grouping;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.grouping.CustomStreamGrouping;
 import backtype.storm.task.WorkerTopologyContext;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * This custom grouping initiates a fixed mapping from a components sourceId to a components targetId which will remain the 
@@ -28,11 +27,11 @@ import backtype.storm.task.WorkerTopologyContext;
 public class SupervicedGrouping implements CustomStreamGrouping {
 
 	private static final long serialVersionUID = -7868245310144592273L;
-	private HashMap<Integer, Integer> idMapping = new HashMap<Integer, Integer>();
+	private HashMap<Integer, Integer> idMapping = new HashMap<>();
 
 	@Override
 	public List<Integer> chooseTasks(int taskId, List<Object> arg1) {
-		List<Integer> result = new ArrayList<Integer>();
+		List<Integer> result = new ArrayList<>();
 		if(idMapping.containsKey(taskId)){
 			result.add(idMapping.get(taskId));
 		}

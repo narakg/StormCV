@@ -1,14 +1,13 @@
 package nl.tno.stormcv.grouping;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.tno.stormcv.model.Feature;
-import nl.tno.stormcv.model.serializer.FeatureSerializer;
 import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.grouping.CustomStreamGrouping;
 import backtype.storm.task.WorkerTopologyContext;
 import backtype.storm.tuple.Fields;
+import java.util.ArrayList;
+import java.util.List;
+import nl.tno.stormcv.model.Feature;
+import nl.tno.stormcv.model.serializer.FeatureSerializer;
 
 /**
  * A custom grouping that functions as a <b>filter</b> as well as (optionally) a FieldGrouping. Only {@link Feature} with the specified
@@ -37,7 +36,7 @@ public class FeatureGrouping implements CustomStreamGrouping {
 		this.featureName = featureName;
 		FeatureSerializer serializer = new FeatureSerializer();
 		Fields fields = serializer.getFields();
-		indexes = new ArrayList<Integer>();
+		indexes = new ArrayList<>();
 		for(String groupBy : grouping){
 			for(int i=0; i<fields.size(); i++){
 				if(groupBy.equals(fields.get(i))){
@@ -48,8 +47,12 @@ public class FeatureGrouping implements CustomStreamGrouping {
 				}
 			}
 		}
-		if(nameIndex == -1)throw new InstantiationException("No index found for feature name: "+featureName);
-		if(indexes.size() == 0) throw new InstantiationException("No field indexes found for provided grouping: "+grouping);
+		if(nameIndex == -1) {
+                    throw new InstantiationException("No index found for feature name: "+featureName);
+                }
+		if(indexes.size() == 0) {
+                    throw new InstantiationException("No field indexes found for provided grouping: "+grouping);
+                }
 	}
 	
 	/**
@@ -62,19 +65,23 @@ public class FeatureGrouping implements CustomStreamGrouping {
 		this.featureName = featureName;
 		FeatureSerializer serializer = new FeatureSerializer();
 		Fields fields = serializer.getFields();
-		indexes = new ArrayList<Integer>();
+		indexes = new ArrayList<>();
 		for(int i=0; i<fields.size(); i++){
 			if(fields.get(i).equals(FeatureSerializer.NAME)){
 				nameIndex = i;
 			}
 		}
-		if(nameIndex == -1)throw new InstantiationException("No index found for feature name: "+featureName);
+		if(nameIndex == -1) {
+                    throw new InstantiationException("No index found for feature name: "+featureName);
+                }
 	}
 	
 	@Override
 	public List<Integer> chooseTasks(int taskId, List<Object> values) {
-		List<Integer> targets = new ArrayList<Integer>();
-		if(!values.get(nameIndex).equals(featureName)) return targets;
+		List<Integer> targets = new ArrayList<>();
+		if(!values.get(nameIndex).equals(featureName)) {
+                    return targets;
+                }
 		
 		if(indexes != null && indexes.size() > 0){
 			int hash = 0;

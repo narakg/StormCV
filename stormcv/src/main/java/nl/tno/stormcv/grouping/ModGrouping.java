@@ -1,14 +1,13 @@
 package nl.tno.stormcv.grouping;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.tno.stormcv.model.CVParticle;
-import nl.tno.stormcv.model.serializer.CVParticleSerializer;
 import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.grouping.CustomStreamGrouping;
 import backtype.storm.task.WorkerTopologyContext;
 import backtype.storm.tuple.Fields;
+import java.util.ArrayList;
+import java.util.List;
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
 
 /**
  * A custom grouping that functions as a <b>filter</b> as well as (optionally) a FieldGrouping. A mod value is provided during construction and is used
@@ -37,7 +36,7 @@ public class ModGrouping implements CustomStreamGrouping {
 	public ModGrouping(int mod, CVParticleSerializer serializer, Fields grouping) throws InstantiationException{
 		this.mod = mod;
 		Fields fields = serializer.getFields();
-		indexes = new ArrayList<Integer>();
+		indexes = new ArrayList<>();
 		for(String groupBy : grouping){
 			for(int i=0; i<fields.size(); i++){
 				if(groupBy.equals(fields.get(i))){
@@ -48,8 +47,12 @@ public class ModGrouping implements CustomStreamGrouping {
 				}
 			}
 		}
-		if(sequenceIndex == -1) throw new InstantiationException("No index found for Field '"+CVParticleSerializer.SEQUENCENR+"'");
-		if(indexes.size() == 0) throw new InstantiationException("No field indexes found for provided grouping: "+grouping);
+		if(sequenceIndex == -1) {
+                    throw new InstantiationException("No index found for Field '"+CVParticleSerializer.SEQUENCENR+"'");
+                }
+		if(indexes.size() == 0) {
+                    throw new InstantiationException("No field indexes found for provided grouping: "+grouping);
+                }
 	}
 	
 	/**
@@ -67,7 +70,9 @@ public class ModGrouping implements CustomStreamGrouping {
 			}
 		}
 		
-		if(sequenceIndex == -1) throw new InstantiationException("No index found for Field '"+CVParticleSerializer.SEQUENCENR+"'");
+		if(sequenceIndex == -1) {
+                    throw new InstantiationException("No index found for Field '"+CVParticleSerializer.SEQUENCENR+"'");
+                }
 	}
 	
 	@Override
@@ -77,8 +82,10 @@ public class ModGrouping implements CustomStreamGrouping {
 
 	@Override
 	public List<Integer> chooseTasks(int taskId, List<Object> values) {
-		List<Integer> targets = new ArrayList<Integer>();
-		if((Long)values.get(sequenceIndex) % mod != 0 ) return targets;
+		List<Integer> targets = new ArrayList<>();
+		if((Long)values.get(sequenceIndex) % mod != 0 ) {
+                    return targets;
+                }
 		
 		if(indexes != null && indexes.size() > 0){
 			int hash = 0;

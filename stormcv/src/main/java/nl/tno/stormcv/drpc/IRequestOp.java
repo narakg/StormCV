@@ -2,7 +2,6 @@ package nl.tno.stormcv.drpc;
 
 
 import java.util.List;
-
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.operation.IOperation;
 

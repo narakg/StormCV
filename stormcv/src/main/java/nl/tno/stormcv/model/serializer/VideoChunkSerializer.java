@@ -1,17 +1,14 @@
 package nl.tno.stormcv.model.serializer;
 
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.VideoChunk;
 
@@ -26,7 +23,7 @@ public class VideoChunkSerializer extends CVParticleSerializer<VideoChunk> imple
 	
 	@Override
 	protected List<String> getTypeFields() {
-		List<String> fields = new ArrayList<String>();
+		List<String> fields = new ArrayList<>();
 		fields.add(TIMESTAMP);
 		fields.add(VIDEO);
 		fields.add(CONTAINER);

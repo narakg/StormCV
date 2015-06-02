@@ -3,7 +3,6 @@ package nl.tno.stormcv.batcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import nl.tno.stormcv.bolt.BatchInputBolt.History;
 import nl.tno.stormcv.model.CVParticle;
 
@@ -44,14 +43,16 @@ public class SlidingWindowBatcher implements IBatcher{
 
 	@Override
 	public List<List<CVParticle>> partition(History history, List<CVParticle> currentSet) {
-		List<List<CVParticle>> result = new ArrayList<List<CVParticle>>();
+		List<List<CVParticle>> result = new ArrayList<>();
 		for(int i=0; i<=currentSet.size()-windowSize; i++){
-			List<CVParticle> window = new ArrayList<CVParticle>();
+			List<CVParticle> window = new ArrayList<>();
 			window.addAll(currentSet.subList(i, i+windowSize)); // add all is used to avoid ConcurrentModificationException when the History cleans stuff up
 			if(assessWindow(window) || currentSet.size() > maxSize){
 				result.add(window);
 				history.removeFromHistory(window.get(0));
-			} else break;
+			} else {
+                            break;
+                        }
 		}
 		return result;
 	}
@@ -62,10 +63,14 @@ public class SlidingWindowBatcher implements IBatcher{
 	 * @return
 	 */
 	private boolean assessWindow(List<CVParticle> window){
-		if(window.size() != windowSize) return false;
+		if(window.size() != windowSize) {
+                    return false;
+                }
 		long previous = window.get(0).getSequenceNr();
 		for(int i=1; i<window.size(); i++){
-			if(window.get(i).getSequenceNr() - previous != sequenceDelta) return false;
+			if(window.get(i).getSequenceNr() - previous != sequenceDelta) {
+                            return false;
+                        }
 			previous = window.get(i).getSequenceNr();
 		}
 		return true;

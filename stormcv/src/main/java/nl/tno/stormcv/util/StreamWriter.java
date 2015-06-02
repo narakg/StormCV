@@ -1,28 +1,25 @@
 package nl.tno.stormcv.util;
 
+import com.xuggle.xuggler.ICodec;
+import com.xuggle.xuggler.IContainer;
+import com.xuggle.xuggler.IMetaData;
+import com.xuggle.xuggler.IPacket;
+import com.xuggle.xuggler.IPixelFormat.Type;
+import com.xuggle.xuggler.IRational;
+import com.xuggle.xuggler.IStream;
+import com.xuggle.xuggler.IStreamCoder;
+import com.xuggle.xuggler.IVideoPicture;
+import com.xuggle.xuggler.video.ConverterFactory;
+import com.xuggle.xuggler.video.IConverter;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import nl.tno.stormcv.model.Frame;
 import nl.tno.stormcv.util.connector.FileConnector;
-
-import com.xuggle.xuggler.ICodec;
-import com.xuggle.xuggler.IContainer;
-import com.xuggle.xuggler.IMetaData;
-import com.xuggle.xuggler.IPacket;
-import com.xuggle.xuggler.IRational;
-import com.xuggle.xuggler.IStream;
-import com.xuggle.xuggler.IVideoPicture;
-import com.xuggle.xuggler.IPixelFormat.Type;
-import com.xuggle.xuggler.video.ConverterFactory;
-import com.xuggle.xuggler.video.IConverter;
-import com.xuggle.xuggler.IStreamCoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class used to write frames to a video file and used by the StreamWriterOperation to store streams. 
@@ -66,7 +63,9 @@ public class StreamWriter {
 	public StreamWriter(String location, String extension, FileConnector connector, ICodec.ID codec, float speed, long nrFramesVideo, int bitrate, String... flags) throws IOException{
 		this(codec, speed, nrFramesVideo, extension, bitrate, flags);
 		this.location = location;
-		if(!this.location.endsWith("/")) this.location += "/";
+		if(!this.location.endsWith("/")) {
+                    this.location += "/";
+                }
 		this.connector = connector;
 	}
 	
@@ -113,7 +112,9 @@ public class StreamWriter {
 		coder.setFrameRate(fr);
 		coder.setTimeBase(IRational.make(fr.getDenominator(), fr.getNumerator()));
 		coder.setNumPicturesInGroupOfPictures(frameRate);
-		if(bitrate > 0) coder.setBitRate(bitrate);
+		if(bitrate > 0) {
+                    coder.setBitRate(bitrate);
+                }
 		//coder.setBitRateTolerance(100000);
 		coder.setPixelType(Type.YUV420P);
 		//coder.setFlag(IStreamCoder.Flags.FLAG2_FAST, true);
@@ -162,7 +163,9 @@ public class StreamWriter {
 				byte[] bytes = new byte[(int)currentFile.length()];
 				fis.read(bytes);
 				fis.close();
-				if(!currentFile.delete()) currentFile.deleteOnExit();
+				if(!currentFile.delete()) {
+                                    currentFile.deleteOnExit();
+                                }
 				return bytes;
 			}
 		}
@@ -209,13 +212,15 @@ public class StreamWriter {
 			frameCount = 0;
 			
 			// move video to final location (can be remote!)
-			if(location != null) try {
-				connector.moveTo(location+currentFile.getName());
-				logger.info("Moving video to final location: "+location+currentFile.getName());
-				connector.copyFile(currentFile, true);
-			} catch (IOException e) {
-				logger.error("Unable to move file to final destinaiton: location", e);
-			}
+			if(location != null) {
+                            try {
+                                connector.moveTo(location+currentFile.getName());
+                                logger.info("Moving video to final location: "+location+currentFile.getName());
+                                connector.copyFile(currentFile, true);
+                            } catch (IOException e) {
+                                logger.error("Unable to move file to final destinaiton: location", e);
+                            }
+                        }
 		}
 	}
 

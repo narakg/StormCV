@@ -1,16 +1,5 @@
 package nl.tno.stormcv.drpc;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import clojure.lang.PersistentArrayMap;
-import nl.tno.stormcv.model.CVParticle;
-import nl.tno.stormcv.model.serializer.CVParticleSerializer;
 import backtype.storm.Config;
 import backtype.storm.coordination.BatchOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -19,6 +8,15 @@ import backtype.storm.topology.base.BaseBatchBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import clojure.lang.PersistentArrayMap;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BatchBolt extends BaseBatchBolt<Long>{
 
@@ -46,14 +44,18 @@ public class BatchBolt extends BaseBatchBolt<Long>{
 		this.requestId = requestId;
 		try{
 			if(serializers == null){	
-				serializers = new HashMap<String, CVParticleSerializer<? extends CVParticle>>();
+				serializers = new HashMap<>();
 				PersistentArrayMap map = (PersistentArrayMap)conf.get(Config.TOPOLOGY_KRYO_REGISTER);
 				for(Object className : map.keySet()){
 					serializers.put((String)className, (CVParticleSerializer<? extends CVParticle>)Class.forName((String)map.get(className)).newInstance());
 				}
 			}
-			if(batchOp != null) batchOp.initBatch(conf, context);
-			if(resultOp != null) resultOp.initBatch(conf, context);
+			if(batchOp != null) {
+                            batchOp.initBatch(conf, context);
+                        }
+			if(resultOp != null) {
+                            resultOp.initBatch(conf, context);
+                        }
 		}catch(Exception e){
 			logger.error("Unable to prepare CVParticleBolt due to ",e);
 		}
@@ -64,8 +66,12 @@ public class BatchBolt extends BaseBatchBolt<Long>{
 		CVParticle particle;
 		try {
 			particle = deserialize(tuple);
-			if(batchOp != null) batchOp.processData(particle);
-			if(resultOp != null) resultOp.processData(particle);
+			if(batchOp != null) {
+                            batchOp.processData(particle);
+                        }
+			if(resultOp != null) {
+                            resultOp.processData(particle);
+                        }
 		} catch ( IOException e) {
 			logger.error("Unalbe deserialize tuple: "+tuple.getStringByField(CVParticleSerializer.TYPE));
 		} catch (Exception e) {

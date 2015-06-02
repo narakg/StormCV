@@ -1,14 +1,17 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.batcher.SequenceNrBatcher;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.Descriptor;
+import nl.tno.stormcv.model.Feature;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 
 /**
  * A batch operation that wraps multiple {@link Feature} objects from multiple bolts in a single {@link Frame} without an image.
@@ -43,7 +46,7 @@ public class FeatureCombinerOp implements IBatchOperation<Frame> {
 	@Override
 	public List<Frame> execute(List<CVParticle> input) throws Exception {
 		Frame frame = null;
-		List<Feature> features = new ArrayList<Feature>();
+		List<Feature> features = new ArrayList<>();
 		for(CVParticle particle : input){
 			if(particle instanceof Feature){
 				features.add((Feature)particle);
@@ -51,7 +54,9 @@ public class FeatureCombinerOp implements IBatchOperation<Frame> {
 				frame = (Frame) particle;
 			}
 		}
-		if(frame == null) frame = new Frame(input.get(0).getStreamId(), input.get(0).getSequenceNr(), Frame.NO_IMAGE, (byte[])null, 0L, new Rectangle());
+		if(frame == null) {
+                    frame = new Frame(input.get(0).getStreamId(), input.get(0).getSequenceNr(), Frame.NO_IMAGE, (byte[])null, 0L, new Rectangle());
+                }
 		
 		// merge new features with already existing features in the Frame
 		f1 : for(Feature newF : features){
@@ -63,7 +68,7 @@ public class FeatureCombinerOp implements IBatchOperation<Frame> {
 			}
 			frame.getFeatures().add(newF);
 		}
-		List<Frame> result = new ArrayList<Frame>();
+		List<Frame> result = new ArrayList<>();
 		result.add(frame);
 		return result;
 		

@@ -1,5 +1,16 @@
 package nl.tno.stormcv.bolt;
 
+import backtype.storm.generated.GlobalStreamId;
+import backtype.storm.generated.Grouping;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,24 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import nl.tno.stormcv.StormCVConfig;
 import nl.tno.stormcv.batcher.IBatcher;
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.operation.IBatchOperation;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
-
-import backtype.storm.generated.GlobalStreamId;
-import backtype.storm.generated.Grouping;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
 
 /**
  * A {@link CVParticleBolt} that stores all input in the History until some criteria are met. Items will remain in the History for a 
@@ -132,8 +129,12 @@ public class BatchInputBolt extends CVParticleBolt implements RemovalListener<CV
 	@Override
 	void prepare(Map conf, TopologyContext context) {
 		// use TTL and maxSize from config if they were not set explicitly using the constructor (implicit way of doing this...)
-		if(TTL == 29) TTL = conf.get(StormCVConfig.STORMCV_CACHES_TIMEOUT_SEC) == null ? TTL : ((Long)conf.get(StormCVConfig.STORMCV_CACHES_TIMEOUT_SEC)).intValue();
-		if(maxSize == 256) maxSize = conf.get(StormCVConfig.STORMCV_CACHES_MAX_SIZE) == null ? maxSize : ((Long)conf.get(StormCVConfig.STORMCV_CACHES_MAX_SIZE)).intValue();
+		if(TTL == 29) {
+                    TTL = conf.get(StormCVConfig.STORMCV_CACHES_TIMEOUT_SEC) == null ? TTL : ((Long)conf.get(StormCVConfig.STORMCV_CACHES_TIMEOUT_SEC)).intValue();
+                }
+		if(maxSize == 256) {
+                    maxSize = conf.get(StormCVConfig.STORMCV_CACHES_MAX_SIZE) == null ? maxSize : ((Long)conf.get(StormCVConfig.STORMCV_CACHES_MAX_SIZE)).intValue();
+                }
 		history = new History(this);
 		
 		// IF NO grouping was set THEN select the first grouping registered for the spout as the grouping used within the Spout (usually a good guess)
@@ -210,7 +211,9 @@ public class BatchInputBolt extends CVParticleBolt implements RemovalListener<CV
 		for(String field : groupBy){
 			key += tuple.getValueByField(field)+"_";
 		}
-		if(key.length() == 0) return null;
+		if(key.length() == 0) {
+                    return null;
+                }
 		return key;
 	}
 	
@@ -250,7 +253,7 @@ public class BatchInputBolt extends CVParticleBolt implements RemovalListener<CV
 		 * @param bolt
 		 */
 		private History(BatchInputBolt bolt){
-			groups = new HashMap<String, List<CVParticle>>();
+			groups = new HashMap<>();
 			inputCache = CacheBuilder.newBuilder()
 					.maximumSize(maxSize)
 					.expireAfterAccess(TTL, TimeUnit.SECONDS) // resets also on get(...)!
@@ -278,7 +281,9 @@ public class BatchInputBolt extends CVParticleBolt implements RemovalListener<CV
 					inputCache.getIfPresent(list.get(i)); // touch the item passed in the cache to reset its expiration timer
 				}
 			}
-			if(i < 0) list.add(0, particle);
+			if(i < 0) {
+                            list.add(0, particle);
+                        }
 			inputCache.put(particle, group);
 		}
 		
@@ -296,9 +301,13 @@ public class BatchInputBolt extends CVParticleBolt implements RemovalListener<CV
 		 * @param group
 		 */
 		private void clear(CVParticle particle, String group){
-			if(!groups.containsKey(group)) return;
+			if(!groups.containsKey(group)) {
+                            return;
+                        }
 			groups.get(group).remove(particle);
-			if(groups.get(group).size() == 0) groups.remove(group);
+			if(groups.get(group).isEmpty()) {
+                            groups.remove(group);
+                        }
 		}
 		
 		/**
@@ -314,6 +323,7 @@ public class BatchInputBolt extends CVParticleBolt implements RemovalListener<CV
 			return inputCache.size();
 		}
 		
+                @Override
 		public String toString(){
 			String result = "";
 			for(String group : groups.keySet()){

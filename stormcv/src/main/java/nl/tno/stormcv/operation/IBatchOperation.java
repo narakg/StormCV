@@ -1,7 +1,6 @@
 package nl.tno.stormcv.operation;
 
 import java.util.List;
-
 import nl.tno.stormcv.model.CVParticle;
 
 /**

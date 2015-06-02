@@ -1,9 +1,8 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.io.IOException;
 import java.util.Map;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.StormCVConfig;
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.util.NativeUtils;
@@ -29,6 +28,7 @@ public abstract class OpenCVOp<Output extends CVParticle> implements IOperation<
 	}
 	
 	@SuppressWarnings("rawtypes")
+        @Override
 	public void prepare(Map stormConf, TopologyContext context) throws Exception{
 		loadOpenCV(stormConf);
 		this.prepareOpenCVOp(stormConf, context);
@@ -37,8 +37,11 @@ public abstract class OpenCVOp<Output extends CVParticle> implements IOperation<
 	@SuppressWarnings("rawtypes")
 	protected void loadOpenCV( Map stormConf) throws RuntimeException, IOException{
 		this.libName = (String)stormConf.get(StormCVConfig.STORMCV_OPENCV_LIB);
-		if(libName == null) NativeUtils.load();
-		else NativeUtils.load(libName);
+		if(libName == null) {
+                    NativeUtils.load();
+                } else {
+                    NativeUtils.load(libName);
+                }
 	}
 	
 	@SuppressWarnings("rawtypes")

@@ -1,8 +1,8 @@
 package nl.tno.stormcv.model;
 
+import backtype.storm.tuple.Tuple;
 import nl.tno.stormcv.operation.FramesToVideoOp;
 import nl.tno.stormcv.operation.VideoToFramesOp;
-import backtype.storm.tuple.Tuple;
 
 /**
  * Represents a piece of video containing a number of encoded frames. The {@link FramesToVideoOp} and {@link VideoToFramesOp} operations can be

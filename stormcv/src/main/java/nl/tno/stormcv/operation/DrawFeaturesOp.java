@@ -1,5 +1,6 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -8,12 +9,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.imageio.ImageIO;
-
-import backtype.storm.task.TopologyContext;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.Descriptor;
+import nl.tno.stormcv.model.Feature;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 import nl.tno.stormcv.util.connector.ConnectorHolder;
 import nl.tno.stormcv.util.connector.FileConnector;
 import nl.tno.stormcv.util.connector.LocalFileConnector;
@@ -69,13 +71,17 @@ public class DrawFeaturesOp implements ISingleInputOperation<Frame> {
 
 	@Override
 	public List<Frame> execute(CVParticle particle) throws Exception {
-		List<Frame> result = new ArrayList<Frame>();
-		if(!(particle instanceof Frame)) return result;
+		List<Frame> result = new ArrayList<>();
+		if(!(particle instanceof Frame)) {
+                    return result;
+                }
 		Frame sf = (Frame)particle;
 		result.add(sf);
 		BufferedImage image = sf.getImage();
 		
-		if(image == null) return result;
+		if(image == null) {
+                    return result;
+                }
 		
 		Graphics2D graphics = image.createGraphics();
 		int colorIndex = 0;
@@ -83,8 +89,12 @@ public class DrawFeaturesOp implements ISingleInputOperation<Frame> {
 			graphics.setColor(colors[colorIndex % colors.length]);
 			for(Descriptor descr : feature.getSparseDescriptors()){
 				Rectangle box = descr.getBoundingBox().getBounds();
-				if(box.width == 0 ) box.width = 1;
-				if(box.height == 0) box.height = 1;
+				if(box.width == 0 ) {
+                                    box.width = 1;
+                                }
+				if(box.height == 0) {
+                                    box.height = 1;
+                                }
 				graphics.draw(box);
 			}
 			colorIndex++;
@@ -98,12 +108,14 @@ public class DrawFeaturesOp implements ISingleInputOperation<Frame> {
 			y += 12;
 		}
 		
-		if(drawMetadata) for(String key : sf.getMetadata().keySet()){
-			colorIndex++;
-			graphics.setColor(colors[colorIndex % colors.length]);
-			graphics.drawString(key+" = "+sf.getMetadata().get(key), 5, y);
-			y += 12;
-		}
+		if(drawMetadata) {
+                    for(String key : sf.getMetadata().keySet()){
+                        colorIndex++;
+                        graphics.setColor(colors[colorIndex % colors.length]);
+                        graphics.drawString(key+" = "+sf.getMetadata().get(key), 5, y);
+                        y += 12;
+                    }
+                }
 			
 		sf.setImage(image);
 		if(writeLocation != null){

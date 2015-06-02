@@ -6,11 +6,8 @@ import java.awt.image.ColorConvertOp;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
-
 import nl.tno.stormcv.model.Frame;
-
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.highgui.Highgui;
@@ -64,7 +61,9 @@ public class ImageUtils {
 	 * @throws IOException if the image cannot be read or converted into binary format
 	 */
 	public static Mat Frame2Mat(Frame frame) throws IOException{
-		if(frame.getImage() == null) throw new IOException("Frame does not contain an image");
+		if(frame.getImage() == null) {
+                    throw new IOException("Frame does not contain an image");
+                }
 		return bytes2Mat(frame.getImageBytes());
 	}
 	

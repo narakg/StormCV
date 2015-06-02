@@ -1,27 +1,25 @@
 package nl.tno.stormcv.fetcher;
 
+import backtype.storm.task.TopologyContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.StormCVConfig;
-import nl.tno.stormcv.model.GroupOfFrames;
-import nl.tno.stormcv.model.Frame;
 import nl.tno.stormcv.model.CVParticle;
-import nl.tno.stormcv.model.serializer.GroupOfFramesSerializer;
-import nl.tno.stormcv.model.serializer.FrameSerializer;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.GroupOfFrames;
 import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
+import nl.tno.stormcv.model.serializer.GroupOfFramesSerializer;
 import nl.tno.stormcv.operation.GroupOfFramesOp;
 import nl.tno.stormcv.util.StreamReader;
 import nl.tno.stormcv.util.connector.ConnectorHolder;
 import nl.tno.stormcv.util.connector.FileConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * FileFrameFetcher is responsible for extracting frames from video files. These files can reside on any location as long
@@ -57,7 +55,7 @@ public class FileFrameFetcher implements IFetcher<CVParticle> {
 	private int groupSize = 1;
 	private List<String> locations;
 	private StreamReader streamReader;
-	private LinkedBlockingQueue<Frame> frameQueue = new LinkedBlockingQueue<Frame>(100);
+	private LinkedBlockingQueue<Frame> frameQueue = new LinkedBlockingQueue<>(100);
 	private int sleepTime = 0;
 	private ConnectorHolder connectorHolder;
 	private boolean useSingleId = false;
@@ -133,7 +131,7 @@ public class FileFrameFetcher implements IFetcher<CVParticle> {
 			imageType = (String)conf.get(StormCVConfig.STORMCV_FRAME_ENCODING);
 		}
 		
-		List<String> original = new ArrayList<String>();
+		List<String> original = new ArrayList<>();
 		original.addAll(locations);
 		locations.clear();
 		for(String dir : original){
@@ -143,7 +141,7 @@ public class FileFrameFetcher implements IFetcher<CVParticle> {
 		int nrTasks = context.getComponentTasks(context.getThisComponentId()).size();
 		
 		// change the list based on the number of tasks working on it
-		List<String> filesToFetch = new ArrayList<String>();
+		List<String> filesToFetch = new ArrayList<>();
 		int i = context.getThisTaskIndex();
 		while(i < locations.size()){
 			filesToFetch.add(locations.get(i));
@@ -155,8 +153,11 @@ public class FileFrameFetcher implements IFetcher<CVParticle> {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public CVParticleSerializer getSerializer() {
-		if(batchSize <= 1) return new FrameSerializer();
-		else return new GroupOfFramesSerializer();
+		if(batchSize <= 1) {
+                    return new FrameSerializer();
+                } else {
+                    return new GroupOfFramesSerializer();
+                }
 	}
 	
 	@Override
@@ -165,7 +166,7 @@ public class FileFrameFetcher implements IFetcher<CVParticle> {
 			this.deactivate();
 		}
 		
-		LinkedBlockingQueue<String> videoList = new LinkedBlockingQueue<String>(10);
+		LinkedBlockingQueue<String> videoList = new LinkedBlockingQueue<>(10);
 		DownloadThread dt = new DownloadThread(locations, videoList, connectorHolder);
 		new Thread(dt).start();
 		
@@ -175,7 +176,9 @@ public class FileFrameFetcher implements IFetcher<CVParticle> {
 	
 	@Override
 	public void deactivate() {
-		if(streamReader != null) streamReader.stop();
+		if(streamReader != null) {
+                    streamReader.stop();
+                }
 		streamReader = null;
 	}
 
@@ -186,7 +189,9 @@ public class FileFrameFetcher implements IFetcher<CVParticle> {
 			if(batchSize <= 1){
 				return frame;
 			}else{
-				if(frameGroup == null || frameGroup.size() >= batchSize) frameGroup = new ArrayList<Frame>();
+				if(frameGroup == null || frameGroup.size() >= batchSize) {
+                                    frameGroup = new ArrayList<>();
+                                }
 				frameGroup.add(frame);
 				if(frameGroup.size() == batchSize){
 					return new GroupOfFrames(frameGroup.get(0).getStreamId(), frameGroup.get(0).getSequenceNr(), frameGroup);
@@ -212,10 +217,12 @@ public class FileFrameFetcher implements IFetcher<CVParticle> {
 				fl.moveTo(location);
 			} catch (IOException e) {
 				logger.warn("Unable to move to "+location+" due to: "+e.getMessage());
-				return new ArrayList<String>();
+				return new ArrayList<>();
 			}
 			return fl.list();
-		}else return new ArrayList<String>();
+		}else {
+                    return new ArrayList<>();
+                }
 	}
 
 	private class DownloadThread implements Runnable{

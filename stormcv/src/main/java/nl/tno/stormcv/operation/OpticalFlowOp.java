@@ -1,19 +1,21 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.Feature;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FeatureSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.Video;
-
-import backtype.storm.task.TopologyContext;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
 
 /**
  * Operation to calculate the optical flow between two {@link Frame}s and returns a {@link Feature}
@@ -65,9 +67,10 @@ public class OpticalFlowOp extends OpenCVOp<CVParticle> implements IBatchOperati
 
 	@Override
 	public List<CVParticle> execute(List<CVParticle> input) throws Exception {
-		List<CVParticle> result = new ArrayList<CVParticle>();
-		if(input.size() != 2 || !(input.get(0) instanceof Frame) || !(input.get(1) instanceof Frame))
-			return result;
+		List<CVParticle> result = new ArrayList<>();
+		if(input.size() != 2 || !(input.get(0) instanceof Frame) || !(input.get(1) instanceof Frame)) {
+                    return result;
+                }
 		
 		Frame frame1 = (Frame)input.get(0);
 		Frame frame2 = (Frame)input.get(1);

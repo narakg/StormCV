@@ -1,16 +1,16 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import backtype.storm.task.TopologyContext;
+import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.Frame;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 
 /**
  * Scales an image into a new image. The original java drawImage function using RenderingHints is used
@@ -49,14 +49,20 @@ public class ScaleImageOp implements ISingleInputOperation<Frame>{
 
 	@Override
 	public List<Frame> execute(CVParticle particle) throws Exception {
-		List<Frame> result = new ArrayList<Frame>();
-		if(!(particle instanceof Frame)) return result;
+		List<Frame> result = new ArrayList<>();
+		if(!(particle instanceof Frame)) {
+                    return result;
+                }
 		
 		Frame frame = (Frame) particle;
 		BufferedImage image = frame.getImage();
-		if(image == null) return result;
+		if(image == null) {
+                    return result;
+                }
 		
-		if(factor != 1.0) image = ScaleImageOp.scale(image, factor);
+		if(factor != 1.0) {
+                    image = ScaleImageOp.scale(image, factor);
+                }
 		frame.setImage(image);
 		result.add(frame);
 		return result;

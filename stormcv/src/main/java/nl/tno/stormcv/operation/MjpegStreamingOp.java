@@ -1,5 +1,12 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
+import backtype.storm.utils.Utils;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.sun.jersey.api.container.httpserver.HttpServerFactory;
+import com.sun.jersey.api.core.ApplicationAdapter;
+import com.sun.net.httpserver.HttpServer;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import javax.imageio.ImageIO;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -22,20 +28,12 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.sun.jersey.api.container.httpserver.HttpServerFactory;
-import com.sun.jersey.api.core.ApplicationAdapter;
-import com.sun.net.httpserver.HttpServer;
-
-import backtype.storm.task.TopologyContext;
-import backtype.storm.utils.Utils;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
 
 /**
  * A BatchInputBolt primarily used for testing that creates its own simple webservice used to view results MJPEG streams. The webservice 
@@ -86,8 +84,9 @@ public class MjpegStreamingOp extends Application implements IBatchOperation<Fra
 	/**
 	 * Sets the classes to be used as resources for this application
 	 */
+        @Override
 	public Set<Class<?>> getClasses() {
-        Set<Class<?>> s = new HashSet<Class<?>>();
+        Set<Class<?>> s = new HashSet<>();
         s.add(MjpegStreamingOp.class);
         return s;
     }
@@ -116,13 +115,17 @@ public class MjpegStreamingOp extends Application implements IBatchOperation<Fra
 
 	@Override
 	public List<Frame> execute(List<CVParticle> input) throws Exception {
-		List<Frame> result = new ArrayList<Frame>();
+		List<Frame> result = new ArrayList<>();
 		for(int i=0; i<input.size(); i++){
 			CVParticle s = input.get(i);
-			if(!(s instanceof Frame)) continue;
+			if(!(s instanceof Frame)) {
+                            continue;
+                        }
 			Frame frame = (Frame)s;
 			result.add(frame);
-			if(frame.getImage() == null) continue;
+			if(frame.getImage() == null) {
+                            continue;
+                        }
 			//BufferedImage prevImage = images.getIfPresent(frame.getStreamId());
 			images.put(frame.getStreamId(), frame.getImage());
 			/*
@@ -190,7 +193,9 @@ public class MjpegStreamingOp extends Application implements IBatchOperation<Fra
 			result += "<td><video poster=\"mjpeg/"+id+".mjpeg\">"+
 					"Your browser does not support the video tag.</video></td>";
 			//result += "<td><img src=\"http://"+InetAddress.getLocalHost().getHostAddress()+":"+port+"/streaming/mjpeg/"+id+".mjpeg\"></td>";
-			if(videoNr > offset + number) break;
+			if(videoNr > offset + number) {
+                            break;
+                        }
 			videoNr++;
 		}
 		result += "</tr></table></body></html>";

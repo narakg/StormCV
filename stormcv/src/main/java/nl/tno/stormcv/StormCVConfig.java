@@ -1,12 +1,23 @@
 package nl.tno.stormcv;
 
-import java.util.ArrayList;
-
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
-import nl.tno.stormcv.util.connector.*;
 import backtype.storm.Config;
 import backtype.storm.tuple.Tuple;
+import java.util.ArrayList;
+import nl.tno.stormcv.model.Descriptor;
+import nl.tno.stormcv.model.Feature;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.GroupOfFrames;
+import nl.tno.stormcv.model.VideoChunk;
+import nl.tno.stormcv.model.serializer.DescriptorSerializer;
+import nl.tno.stormcv.model.serializer.FeatureSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
+import nl.tno.stormcv.model.serializer.GroupOfFramesSerializer;
+import nl.tno.stormcv.model.serializer.VideoChunkSerializer;
+import nl.tno.stormcv.util.connector.ClasspathConnector;
+import nl.tno.stormcv.util.connector.FileConnector;
+import nl.tno.stormcv.util.connector.FtpConnector;
+import nl.tno.stormcv.util.connector.LocalFileConnector;
+import nl.tno.stormcv.util.connector.S3Connector;
 
 /**
  * Defines the configuration parameters used by StormCV. It is possible to put other configuration in the StormCVConfig as well
@@ -87,7 +98,7 @@ public class StormCVConfig extends Config{
 		registerSerialization(Feature.class, FeatureSerializer.class);
 		
 		// register FileConnectors
-		ArrayList<String> connectorList = new ArrayList<String>();
+		ArrayList<String> connectorList = new ArrayList<>();
 		connectorList.add(LocalFileConnector.class.getName());
 		connectorList.add(S3Connector.class.getName());
 		connectorList.add(FtpConnector.class.getName());

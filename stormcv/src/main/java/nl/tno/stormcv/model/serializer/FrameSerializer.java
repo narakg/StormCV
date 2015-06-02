@@ -1,21 +1,19 @@
 package nl.tno.stormcv.model.serializer;
 
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
+import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.Feature;
 import nl.tno.stormcv.model.Frame;
-import nl.tno.stormcv.model.CVParticle;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 
 public class FrameSerializer extends CVParticleSerializer<Frame> implements Serializable{
 
@@ -53,7 +51,7 @@ public class FrameSerializer extends CVParticleSerializer<Frame> implements Seri
 
 	@Override
 	protected List<String> getTypeFields() {
-		List<String> fields = new ArrayList<String>();
+		List<String> fields = new ArrayList<>();
 		fields.add(IMAGETYPE);
 		fields.add(IMAGE);
 		fields.add(TIMESTAMP);

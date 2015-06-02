@@ -1,24 +1,21 @@
 package nl.tno.stormcv.util;
 
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import nl.tno.stormcv.model.Frame;
 import backtype.storm.utils.Utils;
-
 import com.xuggle.mediatool.IMediaReader;
 import com.xuggle.mediatool.MediaListenerAdapter;
 import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.mediatool.event.IVideoPictureEvent;
 import com.xuggle.xuggler.ICodec;
 import com.xuggle.xuggler.IContainer;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import nl.tno.stormcv.model.Frame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class reads a video stream or file, decodes frames and puts those in a queue for further processing. 
@@ -84,6 +81,7 @@ public class StreamReader extends MediaListenerAdapter implements Runnable {
      * @param url the url to read video from
      * @param frameskip milliseconds between frames to extract
      */
+        @Override
 	public void run(){
 		running = true;
 		while(running){
@@ -99,21 +97,24 @@ public class StreamReader extends MediaListenerAdapter implements Runnable {
 					
 					if(!useSingleID){
 						streamId = ""+streamLocation.hashCode();
-						if(streamLocation.contains("/")) streamId = streamLocation.substring(streamLocation.lastIndexOf('/')+1)+"_"+streamId;
+						if(streamLocation.contains("/")) {
+                                                    streamId = streamLocation.substring(streamLocation.lastIndexOf('/')+1)+"_"+streamId;
+                                                }
 					}
 					logger.info("Start reading File: "+streamLocation);
 					
 					// read framerate from file
 			        IContainer cont = IContainer.make();
-			        if (cont.open(streamLocation, IContainer.Type.READ, null) > 0) try{
-				        for(int s=0; s < cont.getNumStreams(); s++){// find the videostream
-				        	if(cont.getStream(s).getStreamCoder().getCodecType() == ICodec.Type.CODEC_TYPE_VIDEO){
-				        		frameMs = (int)Math.floor(1000f/cont.getStream(s).getStreamCoder().getFrameRate().getDouble());
-				        	}
-				        }
-			        }catch(Exception e){
-			        	logger.warn("Unable to read metadata from video");
-			        }
+			        if (cont.open(streamLocation, IContainer.Type.READ, null) > 0) {
+                                    try{
+                                        for(int s=0; s < cont.getNumStreams(); s++){// find the videostream
+                                            if(cont.getStream(s).getStreamCoder().getCodecType() == ICodec.Type.CODEC_TYPE_VIDEO){
+                                                frameMs = (int)Math.floor(1000f/cont.getStream(s).getStreamCoder().getFrameRate().getDouble());
+                                            }
+                                        }
+                                    }catch(Exception e){
+                                        logger.warn("Unable to read metadata from video");
+                                    }       }
 			        
 					mediaReader = ToolFactory.makeReader(streamLocation);
 				}else{
@@ -123,7 +124,9 @@ public class StreamReader extends MediaListenerAdapter implements Runnable {
 				lastRead = System.currentTimeMillis() + 10000;
 	
 				mVideoStreamIndex = -1;
-				if(!useSingleID) frameNr = 0;
+				if(!useSingleID) {
+                                    frameNr = 0;
+                                }
 		        mediaReader.setBufferedImageTypeToGenerate(BufferedImage.TYPE_3BYTE_BGR);
 		        mediaReader.addListener(this);
 		        
@@ -152,28 +155,36 @@ public class StreamReader extends MediaListenerAdapter implements Runnable {
 	/**
 	 * Gets called when FFMPEG transcoded a frame
 	 */
+        @Override
 	public void onVideoPicture(IVideoPictureEvent event) {
 		lastRead  = System.currentTimeMillis();
         if (event.getStreamIndex() != mVideoStreamIndex) {
             if (mVideoStreamIndex == -1){
                 mVideoStreamIndex = event.getStreamIndex();
-            }else return;
+            }else {
+                return;
+            }
         }
-        if(frameNr % frameSkip < groupSize) try{
-        	BufferedImage frame = event.getImage();
-        	byte[] buffer = ImageUtils.imageToBytes(frame, imageType);
-        	long timestamp = event.getTimeStamp(TimeUnit.MILLISECONDS);
-        	if(frameMs > 0 ) timestamp = frameNr * frameMs;
-        	Frame newFrame = new Frame(streamId, frameNr, imageType, buffer, timestamp, new Rectangle(0, 0,frame.getWidth(), frame.getHeight()));
-        	newFrame.getMetadata().put("uri", streamLocation);
-        	frameQueue.put(newFrame);
-        	// enforced throttling
-        	if(sleepTime > 0) Utils.sleep(sleepTime);
-        	// queue based throttling 
-        	if(frameQueue.size() > 20) Utils.sleep(frameQueue.size());
-        }catch(Exception e){
-        	logger.warn("Unable to process new frame due to: "+e.getMessage(), e);
-        }
+        if(frameNr % frameSkip < groupSize) {
+                    try {
+                        BufferedImage frame = event.getImage();
+                        byte[] buffer = ImageUtils.imageToBytes(frame, imageType);
+                        long timestamp = event.getTimeStamp(TimeUnit.MILLISECONDS);
+                        if (frameMs > 0) {
+                            timestamp = frameNr * frameMs;
+                        }
+                        Frame newFrame = new Frame(streamId, frameNr, imageType, buffer, timestamp, new Rectangle(0, 0,frame.getWidth(), frame.getHeight()));
+                        newFrame.getMetadata().put("uri", streamLocation);
+                        frameQueue.put(newFrame);
+                        if (sleepTime > 0) {
+                            Utils.sleep(sleepTime);
+                        }
+                        if (frameQueue.size() > 20) {
+                            Utils.sleep(frameQueue.size());
+                        }
+                    }catch(Exception e){
+                        logger.warn("Unable to process new frame due to: "+e.getMessage(), e);
+                    }       }
         
         frameNr++;
     }
@@ -193,7 +204,9 @@ public class StreamReader extends MediaListenerAdapter implements Runnable {
 		// kill this thread if the last frame read is to long ago (means Xuggler missed the EoF) and clear resources 
 		if(lastRead > 0 && System.currentTimeMillis() - lastRead > 3000){
 			running = false;
-			if(mediaReader != null && mediaReader.getContainer() != null) mediaReader.getContainer().close();
+			if(mediaReader != null && mediaReader.getContainer() != null) {
+                            mediaReader.getContainer().close();
+                        }
 			return this.running;
 		}
 		return true;

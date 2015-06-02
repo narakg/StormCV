@@ -1,9 +1,8 @@
 package nl.tno.stormcv.drpc;
 
+import backtype.storm.task.TopologyContext;
 import java.io.Serializable;
 import java.util.Map;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.model.CVParticle;
 
 public interface IResultOp extends Serializable{

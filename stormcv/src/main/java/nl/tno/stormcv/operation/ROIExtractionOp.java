@@ -1,19 +1,19 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.StormCVConfig;
+import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.Descriptor;
 import nl.tno.stormcv.model.Feature;
 import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 import nl.tno.stormcv.util.ImageUtils;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
 
 /**
  * Extracts Region's Of Interest from {@link Frame}'s it receives. The ROI's to extract are determined by {@link Feature}'s contained
@@ -40,7 +40,7 @@ public class ROIExtractionOp implements ISingleInputOperation<Frame> {
 	private String imageType;
 	
 	public ROIExtractionOp(String featureName){
-		this.roisToExtract = new ArrayList<String>();
+		this.roisToExtract = new ArrayList<>();
 		roisToExtract.add(featureName);
 	}
 	
@@ -116,12 +116,16 @@ public class ROIExtractionOp implements ISingleInputOperation<Frame> {
 
 	@Override
 	public List<Frame> execute(CVParticle input) throws Exception {
-		List<Frame> result = new ArrayList<Frame>();
-		if(!(input instanceof Frame)) return result;
+		List<Frame> result = new ArrayList<>();
+		if(!(input instanceof Frame)) {
+                    return result;
+                }
 		Frame frame = (Frame)input;
 		
 		for(Feature feature : frame.getFeatures()){
-			if(!roisToExtract.contains(feature.getName())) continue;
+			if(!roisToExtract.contains(feature.getName())) {
+                            continue;
+                        }
 			for(Descriptor descriptor : feature.getSparseDescriptors()){
 				Rectangle roi = new Rectangle(descriptor.getBoundingBox());
 
@@ -152,7 +156,7 @@ public class ROIExtractionOp implements ISingleInputOperation<Frame> {
 
 	
 	private List<Feature> copyFeaturesInROI(Rectangle roi, List<Feature> features){
-		List<Feature> result = new ArrayList<Feature>();
+		List<Feature> result = new ArrayList<>();
 		for(Feature f : features){
 			Feature copyF = f.deepCopy();
 			result.add(copyF);

@@ -1,20 +1,17 @@
 package nl.tno.stormcv.model.serializer;
 
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
+import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.Descriptor;
 import nl.tno.stormcv.model.Feature;
-import nl.tno.stormcv.model.CVParticle;
 
 public class FeatureSerializer extends CVParticleSerializer<Feature> implements Serializable {
 
@@ -41,7 +38,7 @@ public class FeatureSerializer extends CVParticleSerializer<Feature> implements 
 
 	@Override
 	protected List<String> getTypeFields() {
-		List<String> fields = new ArrayList<String>();
+		List<String> fields = new ArrayList<>();
 		fields.add(NAME);
 		fields.add(DURATION);
 		fields.add(SPARSE_DESCR);
@@ -56,7 +53,9 @@ public class FeatureSerializer extends CVParticleSerializer<Feature> implements 
 		kryo.writeObject(output, feature.getSparseDescriptors());
 		float[][][] m = feature.getDenseDescriptors();
 		output.writeInt(m.length); // write x
-		if(m.length == 0) return;
+		if(m.length == 0) {
+                    return;
+                }
 		
 		output.writeInt(m[0].length); // write y
 		output.writeInt(m[0][0].length); // write z

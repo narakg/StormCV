@@ -1,13 +1,12 @@
 package nl.tno.stormcv.drpc;
 
+import backtype.storm.task.TopologyContext;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.serializer.CVParticleSerializer;
 import nl.tno.stormcv.operation.IOperation;
-import backtype.storm.task.TopologyContext;
 
 public interface IBatchOp <Output extends CVParticle> extends Serializable{
 

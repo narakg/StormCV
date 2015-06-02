@@ -43,14 +43,16 @@ public class LocalFileConnector implements FileConnector{
 
 	@Override
 	public List<String> list() {
-		List<String> listing = new ArrayList<String>();
+		List<String> listing = new ArrayList<>();
 		if(!localLocation.isDirectory()){
 			if(filter.accept(localLocation, localLocation.getName())){
 				listing.add(localLocation.toURI().toString());
 			}
-		}else for(String file : localLocation.list(filter)){
-			listing.add(new File(localLocation, file).toURI().toString());
-		}
+		}else {
+                    for(String file : localLocation.list(filter)){
+                        listing.add(new File(localLocation, file).toURI().toString());
+                    }
+                }
 		return listing;
 	}
 
@@ -73,18 +75,21 @@ public class LocalFileConnector implements FileConnector{
 	@Override
 	public void copyFile(File localFile, boolean delete) throws IOException {
 		Files.copy(localFile.toPath(), localLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		if(delete) localFile.delete();
+		if(delete) {
+                    localFile.delete();
+                }
 	}
 	
 	@Override
 	public FileConnector deepCopy() {
 		FileConnector fl = new LocalFileConnector();
-		if(this.localLocation != null)
-			try {
-				fl.moveTo(PREFIX+"://"+localLocation.getAbsolutePath());
-			} catch (IOException e) {
-				// TODO
-			}
+		if(this.localLocation != null) {
+                    try {
+                        fl.moveTo(PREFIX+"://"+localLocation.getAbsolutePath());
+                    } catch (IOException e) {
+                        // TODO
+                    }
+                }
 		return fl;
 	}
 
@@ -95,9 +100,13 @@ public class LocalFileConnector implements FileConnector{
 		
 		@Override
 		public boolean accept(File file, String name) {
-			if(extensions == null) return true;
+			if(extensions == null) {
+                            return true;
+                        }
 			for(String ext : extensions){
-				if(name.endsWith(ext)) return true;
+				if(name.endsWith(ext)) {
+                                    return true;
+                                }
 			}
 			return false;
 		}

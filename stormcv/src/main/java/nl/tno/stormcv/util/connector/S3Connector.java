@@ -1,18 +1,5 @@
 package nl.tno.stormcv.util.connector;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-
-import nl.tno.stormcv.StormCVConfig;
-
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -21,6 +8,16 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.xml.datatype.DatatypeConfigurationException;
+import nl.tno.stormcv.StormCVConfig;
 
 /**
  * A {@link FileConnector} implementation used to access AWS S3 buckets. The S3_KEY and S3_SECRET to be used 
@@ -62,7 +59,9 @@ public class S3Connector implements FileConnector {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void prepare(Map stormConf) throws DatatypeConfigurationException{
-		if(!stormConf.containsKey(S3_KEY) || !stormConf.containsKey(S3_SECRET)) throw new DatatypeConfigurationException("S3 Key or Secret are not set!"); 
+		if(!stormConf.containsKey(S3_KEY) || !stormConf.containsKey(S3_SECRET)) {
+                    throw new DatatypeConfigurationException("S3 Key or Secret are not set!");
+                } 
 		s3Key = (String)stormConf.get(S3_KEY);
 		s3Secret = (String)stormConf.get(S3_SECRET);
 		this.s3 = new AmazonS3Client(new BasicAWSCredentials(s3Key, s3Secret));
@@ -85,8 +84,10 @@ public class S3Connector implements FileConnector {
 
 	@Override
 	public List<String> list() {
-		List<String> files = new ArrayList<String>();
-		if(s3URI == null) return files;
+		List<String> files = new ArrayList<>();
+		if(s3URI == null) {
+                    return files;
+                }
 		String[] buckAndKey = this.getBucketAndKey();
 		String bucket = buckAndKey[0];
 		String key = buckAndKey[1];
@@ -95,10 +96,14 @@ public class S3Connector implements FileConnector {
 			// check for valid extensions
 			if(extensions == null){
 				files.add("s3://"+bucket+"/"+objectSummary.getKey());
-			} else for(String ext : extensions) if(objectSummary.getKey().endsWith(ext)){
-				files.add("s3://"+bucket+"/"+objectSummary.getKey());
-				continue s3list;
-			}
+			} else {
+                            for(String ext : extensions) {
+                                if(objectSummary.getKey().endsWith(ext)){
+                                    files.add("s3://"+bucket+"/"+objectSummary.getKey());
+                                    continue s3list;
+                                }
+                            }
+                        }
 		 }
 		return files;
 	}
@@ -110,7 +115,9 @@ public class S3Connector implements FileConnector {
 
 	@Override
 	public File getAsFile() throws IOException{
-		if(s3URI == null) throw new FileNotFoundException("No location set, use moveTo first!");
+		if(s3URI == null) {
+                    throw new FileNotFoundException("No location set, use moveTo first!");
+                }
 		if(tmpDir == null) {
 			tmpDir = File.createTempFile("abcde", "tmp").getParentFile();
 		}
@@ -125,10 +132,14 @@ public class S3Connector implements FileConnector {
 
 	@Override
 	public void copyFile(File localFile, boolean delete) throws IOException {
-		if(s3URI == null) throw new FileNotFoundException("No location set, use moveTo first!");
+		if(s3URI == null) {
+                    throw new FileNotFoundException("No location set, use moveTo first!");
+                }
 		String[] bucketKey = getBucketAndKey();
 		s3.putObject(new PutObjectRequest(bucketKey[0], bucketKey[1], localFile));
-		if(delete) localFile.delete();
+		if(delete) {
+                    localFile.delete();
+                }
 	}
 
 	
@@ -136,7 +147,9 @@ public class S3Connector implements FileConnector {
 		String[] bucketKey = new String[2];
 		bucketKey[0] = s3URI.getHost();
 		bucketKey[1] = s3URI.getPath();
-		if(bucketKey[1].startsWith("/")) bucketKey[1] = bucketKey[1].substring(1);
+		if(bucketKey[1].startsWith("/")) {
+                    bucketKey[1] = bucketKey[1].substring(1);
+                }
 		return bucketKey;
 		/*
 		String s3Url = s3URL.substring(5);

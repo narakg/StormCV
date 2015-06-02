@@ -1,14 +1,11 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
+import com.xuggle.xuggler.ICodec;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import backtype.storm.task.TopologyContext;
-
-import com.xuggle.xuggler.ICodec;
-
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.Frame;
 import nl.tno.stormcv.model.GroupOfFrames;
@@ -16,7 +13,6 @@ import nl.tno.stormcv.model.VideoChunk;
 import nl.tno.stormcv.model.serializer.CVParticleSerializer;
 import nl.tno.stormcv.model.serializer.FrameSerializer;
 import nl.tno.stormcv.model.serializer.VideoChunkSerializer;
-import nl.tno.stormcv.operation.IBatchOperation;
 import nl.tno.stormcv.util.StreamWriter;
 import nl.tno.stormcv.util.connector.ConnectorHolder;
 import nl.tno.stormcv.util.connector.FileConnector;
@@ -138,7 +134,7 @@ public class FramesToVideoOp implements IBatchOperation<CVParticle> {
 	@Override
 	public void prepare(Map stormConf, TopologyContext context) throws Exception {
 		this.connectorHolder = new ConnectorHolder(stormConf);
-		writers = new ConcurrentHashMap<String, StreamWriter>();
+		writers = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -152,14 +148,19 @@ public class FramesToVideoOp implements IBatchOperation<CVParticle> {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public CVParticleSerializer getSerializer() {
-		if(location == null) return new VideoChunkSerializer();
-		else return new FrameSerializer();
+		if(location == null) {
+                    return new VideoChunkSerializer();
+                } else {
+                    return new FrameSerializer();
+                }
 	}
 
 	@Override
 	public List<CVParticle> execute(List<CVParticle> input) throws Exception {
-		List<CVParticle> result =  new ArrayList<CVParticle>();
-		if(input == null || input.size() == 0) return result;
+		List<CVParticle> result =  new ArrayList<>();
+		if(input == null || input.size() == 0) {
+                    return result;
+                }
 		
 		String streamId = input.get(0).getStreamId();
 		if(!writers.containsKey(streamId)){
@@ -175,8 +176,10 @@ public class FramesToVideoOp implements IBatchOperation<CVParticle> {
 			}
 		}
 		
-		List<Frame> frames = new ArrayList<Frame>(input.size());
-		for(CVParticle particle : input) frames.add((Frame)particle);
+		List<Frame> frames = new ArrayList<>(input.size());
+		for(CVParticle particle : input) {
+                    frames.add((Frame)particle);
+                }
 		
 		if(location == null){
 			byte[] bytes = writers.get(streamId).addFrames(frames);

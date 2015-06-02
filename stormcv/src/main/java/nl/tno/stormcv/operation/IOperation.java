@@ -1,11 +1,10 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.io.Serializable;
 import java.util.Map;
-
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.serializer.CVParticleSerializer;
-import backtype.storm.task.TopologyContext;
 
 /**
  * Basic interface for all operations within the platform.

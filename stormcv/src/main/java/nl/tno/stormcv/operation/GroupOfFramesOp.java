@@ -1,15 +1,16 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.batcher.IBatcher;
 import nl.tno.stormcv.fetcher.FileFrameFetcher;
 import nl.tno.stormcv.fetcher.StreamFrameFetcher;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.GroupOfFrames;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
 
 /**
  * A special {@link ISingleInputOperation} that executes a {@link IBatchOperation} on {@link Frame} objects contained in a single received {@link GroupOfFrames}.
@@ -48,11 +49,11 @@ public class GroupOfFramesOp implements ISingleInputOperation<CVParticle>{
 	@Override
 	public List<CVParticle> execute(CVParticle input) throws Exception {
 		if(input instanceof GroupOfFrames){
-			List<CVParticle> frames = new ArrayList<CVParticle>();
+			List<CVParticle> frames = new ArrayList<>();
 			frames.addAll( ((GroupOfFrames)input).getFrames() );
 			return operation.execute( frames);
 		}
-		return new ArrayList<CVParticle>();
+		return new ArrayList<>();
 	}
 
 }

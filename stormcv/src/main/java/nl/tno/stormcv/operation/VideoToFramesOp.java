@@ -1,5 +1,10 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
+import com.xuggle.mediatool.IMediaReader;
+import com.xuggle.mediatool.MediaListenerAdapter;
+import com.xuggle.mediatool.ToolFactory;
+import com.xuggle.mediatool.event.IVideoPictureEvent;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -9,16 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.xuggle.mediatool.IMediaReader;
-import com.xuggle.mediatool.MediaListenerAdapter;
-import com.xuggle.mediatool.ToolFactory;
-import com.xuggle.mediatool.event.IVideoPictureEvent;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.StormCVConfig;
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.Frame;
@@ -28,6 +23,8 @@ import nl.tno.stormcv.model.serializer.CVParticleSerializer;
 import nl.tno.stormcv.model.serializer.FrameSerializer;
 import nl.tno.stormcv.model.serializer.GroupOfFramesSerializer;
 import nl.tno.stormcv.util.ImageUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Converts received {@link VideoChunk} objects back to {@link Frame}'s (optionally wrapped in {@link GroupOfFrames}).
@@ -82,14 +79,19 @@ public class VideoToFramesOp extends MediaListenerAdapter implements ISingleInpu
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public CVParticleSerializer getSerializer() {
-		if(groupOfFrames) return new GroupOfFramesSerializer();
-		else return new FrameSerializer();
+		if(groupOfFrames) {
+                    return new GroupOfFramesSerializer();
+                } else {
+                    return new FrameSerializer();
+                }
 	}
 
 	@Override
 	public List<CVParticle> execute(CVParticle particle) throws Exception {
-		List<CVParticle> result = new ArrayList<CVParticle>();
-		if(!(particle instanceof VideoChunk)) return result;
+		List<CVParticle> result = new ArrayList<>();
+		if(!(particle instanceof VideoChunk)) {
+                    return result;
+                }
 		
 		VideoChunk video = (VideoChunk) particle;
 		frames = new ArrayList<>();
@@ -107,16 +109,21 @@ public class VideoToFramesOp extends MediaListenerAdapter implements ISingleInpu
 		reader.addListener(this);
 		while (reader.readPacket() == null);
 		reader.close();
-		if(!tmpVideo.delete()) tmpVideo.deleteOnExit();
+		if(!tmpVideo.delete()) {
+                    tmpVideo.deleteOnExit();
+                }
 		
 		if(groupOfFrames){
 			result.add(new GroupOfFrames(video.getStreamId(), video.getSequenceNr(), frames));
 		}else{
-			for(Frame frame : frames) result.add(frame);
+			for(Frame frame : frames) {
+                            result.add(frame);
+                        }
 		}
 		return result;
 	}
 	
+        @Override
 	public void onVideoPicture(IVideoPictureEvent event) {
 		try{
 			BufferedImage frame = event.getImage();

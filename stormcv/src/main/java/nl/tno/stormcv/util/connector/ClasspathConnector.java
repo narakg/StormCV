@@ -12,7 +12,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.datatype.DatatypeConfigurationException;
 
 /**
@@ -64,7 +63,7 @@ public class ClasspathConnector implements FileConnector {
 	 */
 	@Override
 	public List<String> list() {
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	@Override
@@ -82,7 +81,9 @@ public class ClasspathConnector implements FileConnector {
 		
 		// check if and where the file is on the classpath
 		URL url = getClass().getResource(path);
-    	if(url == null) throw new FileNotFoundException("Unable to locate "+path);
+    	if(url == null) {
+            throw new FileNotFoundException("Unable to locate "+path);
+                }
     	if(url.getProtocol().equals("file")){
     		return new File(url.getFile());
     	}else if(!url.getProtocol().equals("jar")){

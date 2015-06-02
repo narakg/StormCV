@@ -1,12 +1,15 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import backtype.storm.task.TopologyContext;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.Feature;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FeatureSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 
 /**
  *  An operation that executes a provided set of {@link ISingleInputOperation}&lt;{@link Frame}&gt; sequentially for each
@@ -93,25 +96,33 @@ public class SequentialFrameOp implements ISingleInputOperation<CVParticle>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<CVParticle> execute(CVParticle particle) throws Exception {
-		List<CVParticle> result = new ArrayList<CVParticle>();
-		if(!(particle instanceof Frame)) return result;
+		List<CVParticle> result = new ArrayList<>();
+		if(!(particle instanceof Frame)) {
+                    return result;
+                }
 		
 		Frame frame = (Frame)particle;
 		
 		for(ISingleInputOperation extractor : extractors){
 			List<CVParticle> output = extractor.execute(frame);
 			
-			if(output.size() == 0) continue;
+			if(output.size() == 0) {
+                            continue;
+                        }
 			
 			if(output.get(0) instanceof Feature){
-				for(CVParticle s : output) frame.getFeatures().add((Feature)s);
+				for(CVParticle s : output) {
+                                    frame.getFeatures().add((Feature)s);
+                                }
 			}else if(output.get(0) instanceof Frame){
 				frame = (Frame) output.get(0);
 			}
 		}
 		
 		if(outputFrame){
-			if(!retainImage) frame.setImage(null);
+			if(!retainImage) {
+                            frame.setImage(null);
+                        }
 			result.add(frame);
 		}else{
 			result.addAll(frame.getFeatures());

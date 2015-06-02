@@ -1,10 +1,9 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.Frame;
 import nl.tno.stormcv.model.GroupOfFrames;
@@ -38,14 +37,16 @@ public class FrameGrouperOp implements IBatchOperation<GroupOfFrames> {
 
 	@Override
 	public List<GroupOfFrames> execute(List<CVParticle> input) throws Exception {
-		List<Frame> frames = new ArrayList<Frame>();
+		List<Frame> frames = new ArrayList<>();
 		for(CVParticle particle : input){
 			if(particle instanceof Frame){
 				frames.add((Frame)particle);
 			}
 		}
-		List<GroupOfFrames> result = new ArrayList<GroupOfFrames>();
-		if(frames.size() > 0) result.add( new GroupOfFrames(frames.get(0).getStreamId(), frames.get(0).getSequenceNr(), frames) );
+		List<GroupOfFrames> result = new ArrayList<>();
+		if(frames.size() > 0) {
+                    result.add( new GroupOfFrames(frames.get(0).getStreamId(), frames.get(0).getSequenceNr(), frames) );
+                }
 		return result;
 	}
 

@@ -1,18 +1,17 @@
 package nl.tno.stormcv.fetcher;
 
+import backtype.storm.task.TopologyContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.StormCVConfig;
 import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.Frame;
 import nl.tno.stormcv.model.GroupOfFrames;
-import nl.tno.stormcv.model.serializer.FrameSerializer;
 import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 import nl.tno.stormcv.model.serializer.GroupOfFramesSerializer;
 import nl.tno.stormcv.operation.GroupOfFramesOp;
 import nl.tno.stormcv.util.StreamReader;
@@ -44,7 +43,7 @@ public class StreamFrameFetcher implements IFetcher<CVParticle>{
 	protected List<String> locations;
 	protected int frameSkip = 1;
 	private int groupSize = 1;
-	protected LinkedBlockingQueue<Frame> frameQueue = new LinkedBlockingQueue<Frame>(20);
+	protected LinkedBlockingQueue<Frame> frameQueue = new LinkedBlockingQueue<>(20);
 	protected Map<String, StreamReader> streamReaders;
 	private int sleepTime = 0;
 	private String imageType;
@@ -109,8 +108,11 @@ public class StreamFrameFetcher implements IFetcher<CVParticle>{
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public CVParticleSerializer getSerializer() {
-		if(batchSize  <= 1) return new FrameSerializer();
-		else return new GroupOfFramesSerializer();
+		if(batchSize  <= 1) {
+                    return new FrameSerializer();
+                } else {
+                    return new GroupOfFramesSerializer();
+                }
 	}
 
 	@Override
@@ -118,7 +120,7 @@ public class StreamFrameFetcher implements IFetcher<CVParticle>{
 		if(streamReaders != null){
 			this.deactivate();
 		}
-		streamReaders = new HashMap<String, StreamReader>();
+		streamReaders = new HashMap<>();
 		for(String location : locations){
 			
 			String streamId = ""+location.hashCode();
@@ -133,21 +135,27 @@ public class StreamFrameFetcher implements IFetcher<CVParticle>{
 
 	@Override
 	public void deactivate() {
-		if(streamReaders != null) for(String location : streamReaders.keySet()){
-			streamReaders.get(location).stop();
-		}
+		if(streamReaders != null) {
+                    for(String location : streamReaders.keySet()){
+                        streamReaders.get(location).stop();
+                    }
+                }
 		streamReaders = null;
 	}
 
 	@Override
 	public CVParticle fetchData() {
-		if(streamReaders == null) this.activate();
+		if(streamReaders == null) {
+                    this.activate();
+                }
 		Frame frame = frameQueue.poll();
 		if(frame != null) {
 			if(batchSize <= 1){
 				return frame;
 			}else{
-				if(frameGroup == null || frameGroup.size() >= batchSize) frameGroup = new ArrayList<Frame>();
+				if(frameGroup == null || frameGroup.size() >= batchSize) {
+                                    frameGroup = new ArrayList<>();
+                                }
 				frameGroup.add(frame);
 				if(frameGroup.size() == batchSize){
 					return new GroupOfFrames(frameGroup.get(0).getStreamId(), frameGroup.get(0).getSequenceNr(), frameGroup);

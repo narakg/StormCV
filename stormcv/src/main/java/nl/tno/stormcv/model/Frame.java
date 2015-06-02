@@ -1,14 +1,12 @@
 package nl.tno.stormcv.model;
 
+import backtype.storm.tuple.Tuple;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import nl.tno.stormcv.util.ImageUtils;
-
-import backtype.storm.tuple.Tuple;
 
 /**
  * A {@link CVParticle} object representing a frame from a video stream (or part of a frame called a Tile). Additional to the fields inherited from
@@ -40,11 +38,13 @@ public class Frame extends CVParticle {
 	private byte[] imageBytes;
 	private BufferedImage image;
 	private Rectangle boundingBox;
-	private List<Feature> features = new ArrayList<Feature>();
+	private List<Feature> features = new ArrayList<>();
 	
 	public Frame(String streamId, long sequenceNr, String imageType, BufferedImage image, long timeStamp, Rectangle boundingBox, List<Feature> features) throws IOException {
 		this(streamId, sequenceNr, imageType, image, timeStamp, boundingBox);
-		if(features != null) this.features = features;
+		if(features != null) {
+                    this.features = features;
+                }
 	}
 	
 	public Frame(String streamId, long sequenceNr, String imageType, BufferedImage image, long timeStamp, Rectangle boundingBox ) throws IOException {
@@ -57,7 +57,9 @@ public class Frame extends CVParticle {
 	
 	public Frame(String streamId, long sequenceNr, String imageType, byte[] image, long timeStamp, Rectangle boundingBox, List<Feature> features) {
 		this(streamId, sequenceNr, imageType, image, timeStamp, boundingBox);
-		if(features != null) this.features = features;
+		if(features != null) {
+                    this.features = features;
+                }
 	}
 	
 	public Frame(String streamId, long sequenceNr, String imageType, byte[] image, long timeStamp, Rectangle boundingBox ) {
@@ -92,10 +94,12 @@ public class Frame extends CVParticle {
 		return image;
 	}
 
-	public void setImage(BufferedImage image) throws IOException {
+	public final void setImage(BufferedImage image) throws IOException {
 		this.image = image;
 		if(image != null){
-			if(imageType.equals(NO_IMAGE)) imageType = JPG_IMAGE;
+			if(imageType.equals(NO_IMAGE)) {
+                            imageType = JPG_IMAGE;
+                        }
 			this.imageBytes = ImageUtils.imageToBytes(image, imageType);
 		}else{
 			this.imageBytes = null;
@@ -142,9 +146,12 @@ public class Frame extends CVParticle {
 		return imageBytes;
 	}
 
+        @Override
 	public String toString(){
 		String result= "Frame : {streamId:"+getStreamId()+", sequenceNr:"+getSequenceNr()+", timestamp:"+getTimestamp()+", imageType:"+imageType+", features:[ ";
-		for(Feature f : features) result += f.getName()+" = "+f.getSparseDescriptors().size()+", ";
+		for(Feature f : features) {
+                    result += f.getName()+" = "+f.getSparseDescriptors().size()+", ";
+                }
 		return result + "] }";
 	}
 }

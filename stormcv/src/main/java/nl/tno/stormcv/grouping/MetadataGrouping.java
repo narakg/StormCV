@@ -1,16 +1,15 @@
 package nl.tno.stormcv.grouping;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import nl.tno.stormcv.model.Frame;
-import nl.tno.stormcv.model.serializer.CVParticleSerializer;
-import nl.tno.stormcv.model.serializer.FrameSerializer;
 import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.grouping.CustomStreamGrouping;
 import backtype.storm.task.WorkerTopologyContext;
 import backtype.storm.tuple.Fields;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 
 /**
  * A CustomGrouping used to filter and/or route StormCV objects based on metadata they contain. This grouping can operate in two modes:
@@ -48,7 +47,9 @@ public class MetadataGrouping implements CustomStreamGrouping {
 				break;
 			}
 		}
-		if(mdIndex == -1) throw new InstantiationException("Unable to find "+CVParticleSerializer.METADATA+ " field in CVParticle tuple representation!");
+		if(mdIndex == -1) {
+                    throw new InstantiationException("Unable to find "+CVParticleSerializer.METADATA+ " field in CVParticle tuple representation!");
+                }
 	}
 	
 	public MetadataGrouping(String[] keysToHash) throws InstantiationException{
@@ -61,7 +62,9 @@ public class MetadataGrouping implements CustomStreamGrouping {
 				break;
 			}
 		}
-		if(mdIndex == -1) throw new InstantiationException("Unable to find "+CVParticleSerializer.METADATA+ " field in CVParticle tuple representation!");
+		if(mdIndex == -1) {
+                    throw new InstantiationException("Unable to find "+CVParticleSerializer.METADATA+ " field in CVParticle tuple representation!");
+                }
 	}
 	
 	@Override
@@ -71,42 +74,54 @@ public class MetadataGrouping implements CustomStreamGrouping {
 	
 	@Override
 	public List<Integer> chooseTasks(int taskId, List<Object> values) {
-		if(accept != null) return chooseTasksForMap(taskId, values);
-		else return chooseTasksForKeys(taskId, values);
+		if(accept != null) {
+                    return chooseTasksForMap(taskId, values);
+                } else {
+                    return chooseTasksForKeys(taskId, values);
+                }
 	}
 
 	@SuppressWarnings("unchecked")
 	private List<Integer> chooseTasksForKeys(int taskId, List<Object> values) {
-		List<Integer> targets = new ArrayList<Integer>();
+		List<Integer> targets = new ArrayList<>();
 		Map<String, Object> metadata = (Map<String, Object>)values.get(mdIndex);
 		int hash = 0;
 		for(String key : keysToHash){
-			if(!metadata.containsKey(key)) continue;
+			if(!metadata.containsKey(key)) {
+                            continue;
+                        }
 			hash += metadata.get(key).hashCode();
 		}
-		if(hash != 0) targets.add( targetTasks.get(Math.abs( hash ) % targetTasks.size()) );
+		if(hash != 0) {
+                    targets.add( targetTasks.get(Math.abs( hash ) % targetTasks.size()) );
+                }
 		return targets;
 	}
 
 	@SuppressWarnings("unchecked")
 	private List<Integer> chooseTasksForMap(int taskId, List<Object> values){
-		List<Integer> targets = new ArrayList<Integer>();
+		List<Integer> targets = new ArrayList<>();
 		Map<String, Object> metadata = (Map<String, Object>)values.get(mdIndex);
 		int hash = 0;
 		for(String key : accept.keySet()){
-			if(!metadata.containsKey(key)) continue;
+			if(!metadata.containsKey(key)) {
+                            continue;
+                        }
 			Object mdValue = metadata.get(key);
 			for(Object acc : accept.get(key)){
 				if(acc.equals(mdValue)){
-					if(hashmod) hash += mdValue.hashCode();
-					else{
+					if(hashmod) {
+                                            hash += mdValue.hashCode();
+                                        } else{
 						targets.add( targetTasks.get( (int)Math.floor(Math.random() * targetTasks.size()) ) );
 						return targets;
 					}
 				}
 			}
 		}
-		if(hash != 0) targets.add( targetTasks.get(Math.abs( hash ) % targetTasks.size()) );
+		if(hash != 0) {
+                    targets.add( targetTasks.get(Math.abs( hash ) % targetTasks.size()) );
+                }
 		return targets;
 	}
 

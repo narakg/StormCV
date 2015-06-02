@@ -1,17 +1,17 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import backtype.storm.task.TopologyContext;
 import nl.tno.stormcv.StormCVConfig;
+import nl.tno.stormcv.model.CVParticle;
 import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 import nl.tno.stormcv.util.ImageUtils;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
 
 /**
  * This Operation splits a provided frame/image into a configured number of rectangular tiles. Each tile will have
@@ -62,13 +62,19 @@ public class TilingOp implements ISingleInputOperation<Frame> {
 
 	@Override
 	public List<Frame> execute(CVParticle particle) throws Exception {
-		List<Frame> result = new ArrayList<Frame>();
-		if(!(particle instanceof Frame)) return result;
+		List<Frame> result = new ArrayList<>();
+		if(!(particle instanceof Frame)) {
+                    return result;
+                }
 		
 		Frame frame = (Frame) particle;
 		BufferedImage image = frame.getImage();
-		if(image == null) return result;
-		if(image.getWidth()<2*cols || image.getHeight()<2*rows) return result;
+		if(image == null) {
+                    return result;
+                }
+		if(image.getWidth()<2*cols || image.getHeight()<2*rows) {
+                    return result;
+                }
 		
 		int width = image.getWidth() / cols;
 		int height = image.getHeight() / rows;

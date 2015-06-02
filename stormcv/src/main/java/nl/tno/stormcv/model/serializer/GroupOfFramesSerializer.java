@@ -1,19 +1,16 @@
 package nl.tno.stormcv.model.serializer;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-
-import nl.tno.stormcv.model.GroupOfFrames;
-import nl.tno.stormcv.model.Frame;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.GroupOfFrames;
 
 public class GroupOfFramesSerializer extends CVParticleSerializer<GroupOfFrames> {
 	
@@ -27,7 +24,7 @@ public class GroupOfFramesSerializer extends CVParticleSerializer<GroupOfFrames>
 
 	@Override
 	protected List<String> getTypeFields() {
-		List<String> fields = new ArrayList<String>();
+		List<String> fields = new ArrayList<>();
 		fields.add(FRAME_LIST);
 		return fields;
 	}

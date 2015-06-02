@@ -1,12 +1,11 @@
 package nl.tno.stormcv.bolt;
 
-import java.util.List;
-import java.util.Map;
-
-import nl.tno.stormcv.model.CVParticle;
-import nl.tno.stormcv.operation.ISingleInputOperation;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
+import java.util.List;
+import java.util.Map;
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.operation.ISingleInputOperation;
 
 /**
  * A basic {@link CVParticleBolt} implementation that works with single items received (hence maintains no

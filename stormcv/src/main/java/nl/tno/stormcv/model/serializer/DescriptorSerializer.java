@@ -1,19 +1,17 @@
 package nl.tno.stormcv.model.serializer;
 
+import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Rectangle;
-
-import nl.tno.stormcv.model.Descriptor;
 import nl.tno.stormcv.model.CVParticle;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import nl.tno.stormcv.model.Descriptor;
 
 public class DescriptorSerializer extends CVParticleSerializer<Descriptor> implements Serializable {
 
@@ -36,7 +34,7 @@ public class DescriptorSerializer extends CVParticleSerializer<Descriptor> imple
 
 	@Override
 	protected List<String> getTypeFields() {
-		List<String> fields = new ArrayList<String>();
+		List<String> fields = new ArrayList<>();
 		fields.add(BOUNDINGBOX);
 		fields.add(DURATION);
 		fields.add(VALUES);

@@ -1,15 +1,14 @@
 package nl.tno.stormcv.grouping;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.tno.stormcv.model.serializer.CVParticleSerializer;
-import nl.tno.stormcv.operation.TilesRecombinerOp;
-import nl.tno.stormcv.operation.TilingOp;
 import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.grouping.CustomStreamGrouping;
 import backtype.storm.task.WorkerTopologyContext;
 import backtype.storm.tuple.Fields;
+import java.util.ArrayList;
+import java.util.List;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.operation.TilesRecombinerOp;
+import nl.tno.stormcv.operation.TilingOp;
 
 /**
  * A CutomGrouping specially designed for the routing of 'tiles' after they have been analyzed. This grouping
@@ -54,7 +53,7 @@ public class TileGrouping implements CustomStreamGrouping {
 		// perform hashmod on the stream + sequence combination
 		int hash = streamId.hashCode() + sequence.hashCode();
 		int targetId = targetTasks.get(hash % targetTasks.size());
-		List<Integer> result = new ArrayList<Integer>();
+		List<Integer> result = new ArrayList<>();
 		result.add(targetId);
 		return result;
 	}

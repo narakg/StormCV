@@ -1,19 +1,22 @@
 package nl.tno.stormcv.operation;
 
+import backtype.storm.task.TopologyContext;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import nl.tno.stormcv.StormCVConfig;
+import nl.tno.stormcv.model.CVParticle;
+import nl.tno.stormcv.model.Descriptor;
+import nl.tno.stormcv.model.Feature;
+import nl.tno.stormcv.model.Frame;
+import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FeatureSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import backtype.storm.task.TopologyContext;
-import nl.tno.stormcv.StormCVConfig;
-import nl.tno.stormcv.model.*;
-import nl.tno.stormcv.model.serializer.*;
 
 /**
  * The TilesRecombinerOperation combines a set of tiles ({@link Frame} objects) originating from the same frame.
@@ -70,7 +73,7 @@ public class TilesRecombinerOp implements IBatchOperation<CVParticle>{
 
 	@Override
 	public List<CVParticle> execute(List<CVParticle> input) throws Exception {
-		Map<String, Feature> featureNameMap = new HashMap<String, Feature>();
+		Map<String, Feature> featureNameMap = new HashMap<>();
 		
 		int width = 0, height = 0;
 		for(CVParticle particle : input){
@@ -101,7 +104,7 @@ public class TilesRecombinerOp implements IBatchOperation<CVParticle>{
 			}
 		}
 		
-		List<CVParticle> result = new ArrayList<CVParticle>();
+		List<CVParticle> result = new ArrayList<>();
 		if(outputFrame){
 			Frame newFrame = new Frame(input.get(0).getStreamId(), input.get(0).getSequenceNr(), 
 					imageType, newImage, ((Frame)input.get(0)).getTimestamp(), totalFrame);
@@ -149,9 +152,11 @@ public class TilesRecombinerOp implements IBatchOperation<CVParticle>{
 		}else{
 			feature.getSparseDescriptors().addAll(newF.getSparseDescriptors());
 			Map<String, Object> metadata = feature.getMetadata();
-			for(String key : newF.getMetadata().keySet()) if (!metadata.containsKey(key)){
-				metadata.put(key, newF.getMetadata().get(key));
-			}
+			for(String key : newF.getMetadata().keySet()) {
+                            if (!metadata.containsKey(key)){
+                                metadata.put(key, newF.getMetadata().get(key));
+                            }
+                        }
 			
 			// add dense descriptors (if present)
 			if(feature.getDenseDescriptors() != null && newF.getDenseDescriptors() != null){

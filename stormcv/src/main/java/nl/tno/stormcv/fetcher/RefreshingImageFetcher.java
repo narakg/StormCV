@@ -1,5 +1,7 @@
 package nl.tno.stormcv.fetcher;
 
+import backtype.storm.task.TopologyContext;
+import backtype.storm.utils.Utils;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
@@ -8,19 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import javax.imageio.ImageIO;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import backtype.storm.task.TopologyContext;
-import backtype.storm.utils.Utils;
 import nl.tno.stormcv.StormCVConfig;
 import nl.tno.stormcv.model.Frame;
-import nl.tno.stormcv.model.serializer.FrameSerializer;
 import nl.tno.stormcv.model.serializer.CVParticleSerializer;
+import nl.tno.stormcv.model.serializer.FrameSerializer;
 import nl.tno.stormcv.util.ImageUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This {@link IFetcher} implementation reads images that refresh constantly. Each url provided will be read
@@ -58,7 +55,7 @@ public class RefreshingImageFetcher implements IFetcher<Frame> {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void prepare(Map stormConf, TopologyContext context) throws Exception {
-		frameQueue = new LinkedBlockingQueue<Frame>();
+		frameQueue = new LinkedBlockingQueue<>();
 		
 		if(stormConf.containsKey(StormCVConfig.STORMCV_FRAME_ENCODING)){
 			imageType = (String)stormConf.get(StormCVConfig.STORMCV_FRAME_ENCODING);
@@ -73,7 +70,7 @@ public class RefreshingImageFetcher implements IFetcher<Frame> {
 			int start = batchSize * taskIndex;
 			locations = locations.subList(start, Math.min(start + batchSize, locations.size()));
 		}
-		readers = new ArrayList<ImageReader>();
+		readers = new ArrayList<>();
 	}
 
 	@Override
@@ -133,7 +130,9 @@ public class RefreshingImageFetcher implements IFetcher<Frame> {
 					frame.getMetadata().put("uri", url);
 					frameQueue.put(frame);
 					sequenceNr++;
-					if(frameQueue.size() > 20) Utils.sleep(frameQueue.size());
+					if(frameQueue.size() > 20) {
+                                            Utils.sleep(frameQueue.size());
+                                        }
 				}catch(Exception e){
 					logger.warn("Exception while reading "+url+" : "+e.getMessage());
 				}

@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
 import javax.xml.datatype.DatatypeConfigurationException;
-
 import nl.tno.stormcv.StormCVConfig;
 
 /**

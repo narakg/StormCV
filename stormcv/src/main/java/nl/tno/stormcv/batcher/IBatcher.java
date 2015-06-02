@@ -3,7 +3,6 @@ package nl.tno.stormcv.batcher;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
 import nl.tno.stormcv.bolt.BatchInputBolt;
 import nl.tno.stormcv.bolt.BatchInputBolt.History;
 import nl.tno.stormcv.model.CVParticle;

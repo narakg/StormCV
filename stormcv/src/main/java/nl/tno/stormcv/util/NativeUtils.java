@@ -1,5 +1,6 @@
 package nl.tno.stormcv.util;
 
+import backtype.storm.utils.Utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -7,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-
-import backtype.storm.utils.Utils;
 import nl.tno.stormcv.operation.OpenCVOp;
 
 /**
@@ -50,7 +49,9 @@ public class NativeUtils {
 	 * @throws IOException when the library could not be extracted or loaded
 	 */
 	public static void load(String name) throws RuntimeException, IOException{
-		if(!name.startsWith("/")) name = "/"+name;
+		if(!name.startsWith("/")) {
+                    name = "/"+name;
+                }
 		File libFile = NativeUtils.getAsLocalFile(name);
 		Utils.sleep(500); // wait a bit to be sure the library is ready to be read
 		System.load(libFile.getAbsolutePath());
@@ -73,7 +74,9 @@ public class NativeUtils {
 			return "mac"+arch+"_opencv_java248.dylib";
 		}else if(osName.contains("linux") || osName.contains("nix")){
 			return "linux"+arch+"_opencv_java248.so";
-		}else throw new RuntimeException("Unable to determine proper OS!");
+		}else {
+                    throw new RuntimeException("Unable to determine proper OS!");
+                }
 	}
 
 	
@@ -83,10 +86,14 @@ public class NativeUtils {
 	 * @throws IOException
 	 */
     public static File getAsLocalFile(String name) throws IOException {
-    	if(!name.startsWith("/")) name = "/"+name;
+    	if(!name.startsWith("/")) {
+            name = "/"+name;
+            }
     	
     	URL url = NativeUtils.class.getResource(name);
-    	if(url == null) throw new FileNotFoundException("Unable to locate "+name);
+    	if(url == null) {
+            throw new FileNotFoundException("Unable to locate "+name);
+            }
     	
     	File file = null;
     	if(url.getProtocol().equals("jar")){
@@ -110,8 +117,12 @@ public class NativeUtils {
         File temp = File.createTempFile("abcd", "efgh");
         temp.delete();
         temp = new File(temp.getParentFile().getAbsolutePath() + path);
-        if(deleteOnExit) temp.deleteOnExit();
-        if(temp.exists()) return temp;
+        if(deleteOnExit) {
+            temp.deleteOnExit();
+        }
+        if(temp.exists()) {
+            return temp;
+        }
         
         // Prepare buffer for data copying
         byte[] buffer = new byte[1024];

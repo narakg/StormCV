@@ -1,24 +1,20 @@
 package nl.tno.stormcv.spout;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import nl.tno.stormcv.StormCVConfig;
-import nl.tno.stormcv.fetcher.IFetcher;
-import nl.tno.stormcv.model.CVParticle;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Values;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import nl.tno.stormcv.StormCVConfig;
+import nl.tno.stormcv.fetcher.IFetcher;
+import nl.tno.stormcv.model.CVParticle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Basic spout implementation that includes fault tolerance (if activated). It should be noted that running the spout in fault 
@@ -97,14 +93,18 @@ public class CVParticleSpout implements IRichSpout{
 	public void nextTuple(){
 		CVParticle particle = fetcher.fetchData();
 		
-		if(particle != null) try {
-			Values values = fetcher.getSerializer().toTuple(particle);
-			String id = particle.getStreamId()+"_"+particle.getSequenceNr();
-			if(faultTolerant && tupleCache != null) tupleCache.put(id, values);
-			collector.emit(values, id);
-		} catch (IOException e) {
-			logger.warn("Unable to fetch next frame from queue due to: "+e.getMessage());
-		}
+		if(particle != null) {
+                    try {
+                        Values values = fetcher.getSerializer().toTuple(particle);
+                        String id = particle.getStreamId()+"_"+particle.getSequenceNr();
+                        if (faultTolerant && tupleCache != null) {
+                            tupleCache.put(id, values);
+                        }
+                        collector.emit(values, id);
+                    }catch (IOException e) {
+                        logger.warn("Unable to fetch next frame from queue due to: "+e.getMessage());
+                    }
+                }
 	}
 	
 	@Override
